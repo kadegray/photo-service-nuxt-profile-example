@@ -4,8 +4,24 @@
       &larr; Back to Photos
     </NuxtLink>
 
-    <div v-if="loading" class="text-center py-12 text-gray-400">Loading photo...</div>
-    <div v-else-if="error" class="text-center py-12 text-red-400">{{ error.message }}</div>
+    <div v-if="error" class="text-center py-12 text-red-400">{{ error.message }}</div>
+    <div v-else-if="loading" class="space-y-8">
+      <div class="aspect-video rounded-lg bg-gray-900 animate-pulse" />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="space-y-4">
+          <div class="h-6 w-28 rounded bg-gray-800 animate-pulse" />
+          <div class="h-4 w-full rounded bg-gray-800 animate-pulse" />
+          <div class="h-4 w-full rounded bg-gray-800 animate-pulse" />
+          <div class="h-4 w-2/3 rounded bg-gray-800 animate-pulse" />
+        </div>
+        <div class="space-y-4">
+          <div class="h-6 w-20 rounded bg-gray-800 animate-pulse" />
+          <div class="h-4 w-full rounded bg-gray-800 animate-pulse" />
+          <div class="h-4 w-full rounded bg-gray-800 animate-pulse" />
+          <div class="h-4 w-2/3 rounded bg-gray-800 animate-pulse" />
+        </div>
+      </div>
+    </div>
     <div v-else-if="photo" class="space-y-8">
       <div class="rounded-lg overflow-hidden bg-gray-900">
         <img

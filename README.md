@@ -32,7 +32,6 @@ A demo portfolio site built with [Nuxt 3](https://nuxt.com) and [photo-service-v
 
    | Variable | Description | Default |
    |---|---|---|
-   | `PHOTO_SERVICE_BASE_URL` | URL of your Photo Service API | `https://photoservice.ibexel.com` |
    | `PHOTO_SERVICE_TENANT_ID` | Your tenant ID | `1` |
 
 4. Start the development server:

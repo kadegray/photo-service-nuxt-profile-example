@@ -28,13 +28,6 @@
             >
               Taxonomies
             </NuxtLink>
-            <NuxtLink
-              to="/terms"
-              class="text-sm font-medium text-gray-400 hover:text-white transition-colors"
-              active-class="text-white"
-            >
-              Tags
-            </NuxtLink>
           </nav>
         </div>
       </div>

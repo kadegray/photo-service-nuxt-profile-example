@@ -1,24 +1,28 @@
 <template>
   <div>
-    <h1 class="text-3xl font-bold mb-8">Categories</h1>
+    <h1 class="text-3xl font-bold mb-8">Taxonomies</h1>
 
-    <div v-if="loading" class="text-center py-12 text-gray-400">Loading categories...</div>
-    <div v-else-if="error" class="text-center py-12 text-red-400">{{ error.message }}</div>
+    <div v-if="error" class="text-center py-12 text-red-400">{{ error.message }}</div>
     <template v-else>
-      <div class="space-y-4">
-        <NuxtLink
-          v-for="taxonomy in taxonomies"
-          :key="taxonomy.id"
-          :to="`/taxonomies/${taxonomy.id}`"
-          class="block p-4 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors"
-        >
-          <h3 class="font-semibold text-white mb-1">{{ taxonomy.name }}</h3>
-          <p v-if="taxonomy.description" class="text-sm text-gray-400 mb-2">{{ taxonomy.description }}</p>
-          <p class="text-xs text-gray-500">{{ taxonomy.term_count }} terms</p>
-        </NuxtLink>
+      <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6">
+        <template v-if="loading">
+          <EntityCardSkeleton v-for="n in 8" :key="`skeleton-${n}`" />
+        </template>
+        <template v-else>
+          <EntityCard
+            v-for="taxonomy in sortedTaxonomies"
+            :key="taxonomy.id"
+            :to="`/taxonomies/${taxonomy.id}`"
+            :title="taxonomy.name"
+            :description="taxonomy.description"
+            :thumbnail-photos="taxonomy.thumbnail_photos"
+            :stat="`${taxonomy.term_count} terms`"
+            hide-if-empty
+          />
+        </template>
       </div>
 
-      <div v-if="pagination" class="flex items-center justify-center gap-4 mt-8">
+      <div v-if="pagination && pagination.last_page > 1" class="flex items-center justify-center gap-4 mt-8">
         <button @click="prevPage" :disabled="pagination.current_page <= 1" class="px-4 py-2 rounded bg-gray-800 text-white disabled:opacity-50">Previous</button>
         <span class="text-gray-400">Page {{ pagination.current_page }} of {{ pagination.last_page }}</span>
         <button @click="nextPage" :disabled="pagination.current_page >= pagination.last_page" class="px-4 py-2 rounded bg-gray-800 text-white disabled:opacity-50">Next</button>
@@ -30,7 +34,9 @@
 <script setup lang="ts">
 const { taxonomies, loading, error, pagination, nextPage, prevPage } = useTaxonomies()
 
+const sortedTaxonomies = computed(() => [...taxonomies.value].sort((a, b) => b.term_count - a.term_count))
+
 useHead({
-  title: 'Categories | Portfolio',
+  title: 'Taxonomies | Portfolio',
 })
 </script>

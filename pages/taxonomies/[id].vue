@@ -1,35 +1,61 @@
 <template>
   <div>
     <NuxtLink to="/taxonomies" class="inline-flex items-center text-sm text-gray-400 hover:text-white mb-6 transition-colors">
-      &larr; Back to Categories
+      &larr; Back to Taxonomies
     </NuxtLink>
 
-    <div v-if="taxonomyLoading" class="text-center py-12 text-gray-400">Loading category...</div>
-    <div v-else-if="taxonomyError" class="text-center py-12 text-red-400">{{ taxonomyError.message }}</div>
-    <template v-else-if="taxonomy">
+    <nav v-if="allTaxonomies.length" class="flex flex-wrap gap-2 mb-8">
+      <NuxtLink
+        v-for="t in allTaxonomies"
+        :key="t.id"
+        :to="`/taxonomies/${t.id}`"
+        class="px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+        :class="
+          t.id === Number(taxonomyId)
+            ? 'bg-white text-gray-950'
+            : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+        "
+      >
+        {{ t.name }}
+      </NuxtLink>
+    </nav>
+
+    <div v-if="taxonomyError" class="text-center py-12 text-red-400">{{ taxonomyError.message }}</div>
+    <template v-else>
       <div class="mb-8">
-        <h1 class="text-3xl font-bold mb-2">{{ taxonomy.name }}</h1>
-        <p v-if="taxonomy.description" class="text-gray-400 text-lg">{{ taxonomy.description }}</p>
-        <p class="text-sm text-gray-500 mt-2">{{ taxonomy.term_count }} terms</p>
+        <template v-if="taxonomyLoading">
+          <div class="h-9 w-56 max-w-full rounded bg-gray-800 animate-pulse mb-2" />
+          <div class="h-5 w-80 max-w-full rounded bg-gray-800 animate-pulse mb-2" />
+          <div class="h-4 w-20 rounded bg-gray-800 animate-pulse mt-2" />
+        </template>
+        <template v-else-if="taxonomy">
+          <h1 class="text-3xl font-bold mb-2">{{ taxonomy.name }}</h1>
+          <p v-if="taxonomy.description" class="text-gray-400 text-lg">{{ taxonomy.description }}</p>
+          <p class="text-sm text-gray-500 mt-2">{{ taxonomy.term_count }} terms</p>
+        </template>
       </div>
 
-      <div v-if="termsLoading" class="text-center py-12 text-gray-400">Loading terms...</div>
-      <div v-else-if="termsError" class="text-center py-12 text-red-400">{{ termsError.message }}</div>
+      <div v-if="termsError" class="text-center py-12 text-red-400">{{ termsError.message }}</div>
       <template v-else>
-        <div class="space-y-4">
-          <NuxtLink
-            v-for="term in terms"
-            :key="term.id"
-            :to="`/terms/${term.id}`"
-            class="block p-4 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors"
-          >
-            <h3 class="font-semibold text-white mb-1">{{ term.name }}</h3>
-            <p v-if="term.description" class="text-sm text-gray-400 mb-2">{{ term.description }}</p>
-            <p class="text-xs text-gray-500">{{ term.photo_count }} photos</p>
-          </NuxtLink>
+        <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6">
+          <template v-if="termsLoading">
+            <EntityCardSkeleton v-for="n in 8" :key="`skeleton-${n}`" />
+          </template>
+          <template v-else>
+            <EntityCard
+              v-for="term in sortedTerms"
+              :key="term.id"
+              :to="`/terms/${term.id}`"
+              :title="term.name"
+              :description="term.description"
+              :thumbnail-photos="term.thumbnail_photos"
+              :stat="`${term.photo_count} photos`"
+              hide-if-empty
+            />
+          </template>
         </div>
 
-        <div v-if="termsPagination" class="flex items-center justify-center gap-4 mt-8">
+        <div v-if="termsPagination && termsPagination.last_page > 1" class="flex items-center justify-center gap-4 mt-8">
           <button @click="prevPage" :disabled="termsPagination.current_page <= 1" class="px-4 py-2 rounded bg-gray-800 text-white disabled:opacity-50">Previous</button>
           <span class="text-gray-400">Page {{ termsPagination.current_page }} of {{ termsPagination.last_page }}</span>
           <button @click="nextPage" :disabled="termsPagination.current_page >= termsPagination.last_page" class="px-4 py-2 rounded bg-gray-800 text-white disabled:opacity-50">Next</button>
@@ -44,9 +70,12 @@ const route = useRoute()
 const taxonomyId = route.params.id as string
 
 const { taxonomy, loading: taxonomyLoading, error: taxonomyError } = useTaxonomy(taxonomyId)
+const { taxonomies: allTaxonomies } = useTaxonomies()
 const { terms, loading: termsLoading, error: termsError, pagination: termsPagination, nextPage, prevPage } = useTaxonomyTerms(Number(taxonomyId))
 
+const sortedTerms = computed(() => [...terms.value].sort((a, b) => b.photo_count - a.photo_count))
+
 useHead({
-  title: 'Category | Portfolio',
+  title: 'Taxonomy | Portfolio',
 })
 </script>
